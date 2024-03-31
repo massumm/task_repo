@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../Constant.dart';
 import '../models/Repository.dart';
 class ApiController extends GetxController {
   var repositories = <Repository>[].obs;
@@ -13,7 +14,7 @@ class ApiController extends GetxController {
   Future<void> fetchRepositories() async {
     try {
       final response = await http.get(
-        Uri.parse('https://api.github.com/repositories?page=$currentPage&per_page=10'),
+        Uri.parse('${Constant.baseUrl}/repositories?page=$currentPage&per_page=10'),
       );
       if (response.statusCode == 200) {
         final List<dynamic> responseData = json.decode(response.body);
@@ -41,5 +42,16 @@ class ApiController extends GetxController {
   void loadMoreRepositories() {
     currentPage++;
     fetchRepositories();
+  }
+}
+Future<Map<String, dynamic>> fetchOwnerDetails(String ownerName) async {
+  final response = await http.get(
+    Uri.parse('${Constant.baseUrl}/users/$ownerName'),
+  );
+
+  if (response.statusCode == 200) {
+    return json.decode(response.body);
+  } else {
+    throw Exception('Failed to fetch owner details');
   }
 }
